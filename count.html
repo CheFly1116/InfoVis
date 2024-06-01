@@ -16,8 +16,7 @@
     <script src="components/scatterplot.js"></script>
     <script src="components/histogram.js"></script>
     <script src="components/pc.js"></script>
-    <script src="components/datatable.js"></script>
-
+    <script src="components/barchart.js"></script>
 
     <title>NSL-KDD Dataset Analyze</title>
     <style>
@@ -64,29 +63,19 @@
     </header>
 
     <main class="container pb-3">
-
+        <button class="btn btn-success" onclick="updateBarchart(data1)">Normal</button>
+        <button class="btn btn-danger" onclick="updateBarchart(data2)">Attack</button>
+        <div class="text-center">
+            <svg width="400" height="400" id="barchart">
+            </svg>
+        </div>
     </main>
 
     <script>
-        let data, brushedData, scatterplot, histogram, pc, dataTable;
+        let data, brushedData, barchart;
 
-        function updateScatterplot() {
-            let xVar = d3.select("input[type=button][name=x-encoding]:checked").property("value");
-            let yVar = d3.select("input[type=button][name=y-encoding]:checked").property("value");
-            let useColor = d3.select("#use-color").property("checked");
-            scatterplot.update(xVar, yVar, "attack", useColor);
-        }
-
-        function updateHistogram() {
-            histogram.update(brushedData && brushedData.length > 0 ? brushedData : data, "attack");
-        }
-
-        function updatePC() {
-            pc.update(brushedData && brushedData.length > 0 ? brushedData : data, "attack");
-        }
-
-        function updateDataTable() {
-            dataTable.update(brushedData && brushedData.length > 0 ? brushedData : data, data.columns)
+        function updateBarchart() {
+            
         }
 
         d3.csv("https://raw.githubusercontent.com/CheFly1116/InfoVis/dataset/KDDTrain+_20Percent.csv")
@@ -138,6 +127,9 @@
                 });
 
                 data = csvData;
+
+                barchart = new Barchart();
+                barchart.initialize();
 
                 scatterplot = new Scatterplot("#scatterplot", "#sc-tooltip", data);
                 scatterplot.initialize();
