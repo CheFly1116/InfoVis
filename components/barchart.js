@@ -37,6 +37,7 @@ class Barchart {
 
         this.xScale.domain(categories).range([0, this.width]).padding(0.3);
         this.yScale.domain([0, d3.max(Object.values(counts))]).range([this.height, 0]);
+        this.zScale.domain([...new Set(data.map(d => d["protocol_type"]))])
 
         this.container.selectAll("rect")
             .data(categories)
@@ -45,7 +46,8 @@ class Barchart {
             .attr("y", d => this.yScale(counts[d]))
             .attr("width", this.xScale.bandwidth())
             .attr("height", d => this.height - this.yScale(counts[d]))
-            .attr("fill", "lightgray")
+            // .attr("fill", "lightgray")
+            .attr("fill", d => this.zScale(d['protocol_type']))
 
         this.xAxis
             .attr("transform", `translate(${this.margin.left}, ${this.margin.top + this.height})`)
