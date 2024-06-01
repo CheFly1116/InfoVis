@@ -70,26 +70,8 @@
     <script>
         let data, brushedData, scatterplot, histogram, pc, dataTable;
 
-        function updateScatterplot() {
-            let xVar = d3.select("input[type=button][name=x-encoding]:checked").property("value");
-            let yVar = d3.select("input[type=button][name=y-encoding]:checked").property("value");
-            let useColor = d3.select("#use-color").property("checked");
-            scatterplot.update(xVar, yVar, "attack", useColor);
-        }
 
-        function updateHistogram() {
-            histogram.update(brushedData && brushedData.length > 0 ? brushedData : data, "attack");
-        }
-
-        function updatePC() {
-            pc.update(brushedData && brushedData.length > 0 ? brushedData : data, "attack");
-        }
-
-        function updateDataTable() {
-            dataTable.update(brushedData && brushedData.length > 0 ? brushedData : data, data.columns)
-        }
-
-        d3.csv("https://raw.githubusercontent.com/CheFly1116/InfoVis/dataset/KDDTrain+_20Percent.csv")
+        d3.csv("https://raw.githubusercontent.com/CheFly1116/InfoVis/main/dataset/KDDTrain%2B_20Percent.csv")
             .then(csvData => {
                 csvData.forEach(d => {
                     d["duration"] = +d["duration"];
@@ -154,7 +136,7 @@
                     updateDataTable();
                 });
 
-                histogram = new Histogram("#bar-chart");
+                histogram = new Histogram("#histogram");
                 histogram.initialize();
 
                 updateHistogram();

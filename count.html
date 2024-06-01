@@ -12,10 +12,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/d3-legend/2.25.6/d3-legend.min.js"></script>
     <script src="https://unpkg.com/@popperjs/core@2"></script>
 
-
-    <script src="components/scatterplot.js"></script>
     <script src="components/histogram.js"></script>
-    <script src="components/pc.js"></script>
     <script src="components/barchart.js"></script>
 
     <title>NSL-KDD Dataset Analyze</title>
@@ -63,10 +60,10 @@
     </header>
 
     <main class="container pb-3">
-        <button class="btn btn-success" onclick="updateBarchart(data1)">Normal</button>
-        <button class="btn btn-danger" onclick="updateBarchart(data2)">Attack</button>
+        <button class="btn btn-success" onclick="updateBarchart('normal')">Normal</button>
+        <button class="btn btn-danger" onclick="updateBarchart('attack')">Attack</button>
         <div class="text-center">
-            <svg width="400" height="400" id="barchart">
+            <svg width="800" height="800" id="barchart">
             </svg>
         </div>
     </main>
@@ -75,16 +72,13 @@
         let data, brushedData, barchart;
 
         function updateBarchart() {
-            
+            barchart.update(data, "attack");
         }
 
-        d3.csv("https://raw.githubusercontent.com/CheFly1116/InfoVis/dataset/KDDTrain+_20Percent.csv")
+        d3.csv("https://raw.githubusercontent.com/CheFly1116/InfoVis/main/dataset/KDDTrain%2B_20Percent.csv")
             .then(csvData => {
                 csvData.forEach(d => {
                     d["duration"] = +d["duration"];
-                    d["protocol_type"] = +d["protocol_type"];
-                    d["service"] = +d["service"];
-                    d["flag"] = +d["flag"];
                     d["src_bytes"] = +d["src_bytes"];
                     d["dst_bytes"] = +d["dst_bytes"];
                     d["land"] = +d["land"];
@@ -122,43 +116,17 @@
                     d["dst_host_srv_serror_rate"] = +d["dst_host_srv_serror_rate"];
                     d["dst_host_rerror_rate"] = +d["dst_host_rerror_rate"];
                     d["dst_host_srv_rerror_rate"] = +d["dst_host_srv_rerror_rate"];
-                    d["attack"] = +d["attack"];
                     d["level"] = +d["level"];
                 });
 
                 data = csvData;
-
-                barchart = new Barchart();
+                console.log(data[0]);
+                console.log(data[1]);
+                barchart = new Barchart("#barchart");
                 barchart.initialize();
 
-                scatterplot = new Scatterplot("#scatterplot", "#sc-tooltip", data);
-                scatterplot.initialize();
+                updateBarchart('normal');
 
-                updateScatterplot();
-                d3.selectAll("input[type=radio][name=x-encoding]").on("change", updateScatterplot);
-                d3.selectAll("input[type=radio][name=y-encoding]").on("change", updateScatterplot);
-                d3.selectAll("#use-color").on("change", updateScatterplot);
-
-                scatterplot.on("brush", (brushedItems) => {
-                    brushedData = brushedItems;
-                    updateHistogram();
-                    updatePC();
-                    updateDataTable();
-                });
-
-                histogram = new Histogram("#bar-chart");
-                histogram.initialize();
-
-                updateHistogram();
-
-                pc = new PC("#pc", data, ["petal.length", "petal.width", "sepal.length", "sepal.width"]);
-                pc.initialize();
-
-                updatePC();
-
-                dataTable = new DataTable("#data-table");
-
-                updateDataTable();
             })
     </script>
 
