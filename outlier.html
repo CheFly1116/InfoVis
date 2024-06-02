@@ -12,8 +12,8 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/d3-legend/2.25.6/d3-legend.min.js"></script>
     <script src="https://unpkg.com/@popperjs/core@2"></script>
 
-    <script src="components/histogram.js"></script>
-    <script src="components/barchart.js"></script>
+    <script src="components/boxplot.js"></script>
+
 
     <title>NSL-KDD Dataset Analyze</title>
     <link rel="stylesheet" href="components/style.css" />
@@ -53,33 +53,71 @@
     </header>
 
     <main class="container pb-3">
-        <div class="text-center">
-            <button class="btn btn-success" onclick="updateBarchart('normal')" style="margin-top: 10px;">Normal</button>
-            <button class="btn btn-danger" onclick="updateBarchart('attack')" style="margin-top: 10px;">Attack</button>
+        <div class="text-center" style="margin-top: 10px">
+            <select class="form-select" name="attributes" id="attributes" style="margin-top: 10px">
+                <option value="duration" selected>Choose attribute</option>
+                        <option value="duration">duration</th>
+                        <option value="src_bytes">src_bytes</th>
+                        <option value="dst_bytes">dst_bytes</th>
+                        <option value="land">land</th>
+                        <option value="wrong_fragment">wrong_fragment</th>
+                        <option value="urgent">urgent</th>
+                        <option value="hot">hot</th>
+                        <option value="num_failed_logins">num_failed_logins</th>
+                        <option value="logged_in">logged_in</th>
+                        <option value="num_compromised">num_compromised</th>
+                        <option value="root_shell">root_shell</th>
+                        <option value="su_attempted">su_attempted</th>
+                        <option value="num_root">num_root</th>
+                        <option value="num_file_creations">num_file_creations</th>
+                        <option value="num_shells">num_shells</th>
+                        <option value="num_access_files">num_access_files</th>
+                        <option value="num_outbound_cmds">num_outbound_cmds</th>
+                        <option value="is_host_login">is_host_login</th>
+                        <option value="is_guest_login">is_guest_login</th>
+                        <option value="count">count</th>
+                        <option value="srv_count">srv_count</th>
+                        <option value="serror_rate">serror_rate</th>
+                        <option value="srv_serror_rate">srv_serror_rate</th>
+                        <option value="rerror_rate">rerror_rate</th>
+                        <option value="srv_rerror_rate">srv_rerror_rate</th>
+                        <option value="same_srv_rate">same_srv_rate</th>
+                        <option value="diff_srv_rate">diff_srv_rate</th>
+                        <option value="srv_diff_host_rate">srv_diff_host_rate</th>
+                        <option value="dst_host_count">dst_host_count</th>
+                        <option value="dst_host_srv_count">dst_host_srv_count</th>
+                        <option value="dst_host_same_srv_rate">dst_host_same_srv_rate</th>
+                        <option value="dst_host_diff_srv_rate">dst_host_diff_srv_rate</th>
+                        <option value="dst_host_same_src_port_rate">dst_host_same_src_port_rate</th>
+                        <option value="dst_host_srv_diff_host_rate">dst_host_srv_diff_host_rate</th>
+                        <option value="dst_host_serror_rate">dst_host_serror_rate</th>
+                        <option value="dst_host_srv_serror_rate">dst_host_srv_serror_rate</th>
+                        <option value="dst_host_rerror_rate">dst_host_rerror_rate</th>
+                        <option value="dst_host_srv_rerror_rate">dst_host_srv_rerror_rate</th>
+                        <option value="level">level</th>
+            </select>
         </div>
         <div class="text-center">
-            <svg width="800" height="800" id="barchart">
+            <svg width="800" height="800" id="boxplot">
             </svg>
-            <div class="tooltip bs-tooltip-top show" id="sc-tooltip" role="tooltip" style="display:none">
-                <div class="tooltip-arrow"></div>
-                <div class="tooltip-inner">
-                    Some tooltip text!
-                </div>
-            </div>
         </div>
     </main>
 
     <script>
-        let data, brushedData, barchart;
+        let data, boxplot;
 
-        function updateBarchart(xVar) {
-            barchart.update(data, xVar);
+        var select = document.getElementById('attributes');
+
+        function updateBoxplot(xVar) {
+            boxplot.update(data, xVar);
         }
-
         d3.csv("https://raw.githubusercontent.com/CheFly1116/InfoVis/main/dataset/KDDTrain%2B_20Percent.csv")
             .then(csvData => {
                 csvData.forEach(d => {
                     d["duration"] = +d["duration"];
+                    d["protocol_type"] = +d["protocol_type"];
+                    d["service"] = +d["service"];
+                    d["flag"] = +d["flag"];
                     d["src_bytes"] = +d["src_bytes"];
                     d["dst_bytes"] = +d["dst_bytes"];
                     d["land"] = +d["land"];
@@ -117,16 +155,20 @@
                     d["dst_host_srv_serror_rate"] = +d["dst_host_srv_serror_rate"];
                     d["dst_host_rerror_rate"] = +d["dst_host_rerror_rate"];
                     d["dst_host_srv_rerror_rate"] = +d["dst_host_srv_rerror_rate"];
+                    d["attack"] = +d["attack"];
                     d["level"] = +d["level"];
                 });
 
                 data = csvData;
-                // console.log(data[0]);
-                barchart = new Barchart("#barchart");
-                barchart.initialize();
+                boxplot = new Boxplot("#boxplot");
+                boxplot.initialize();
 
-                updateBarchart('normal');
+                updateBoxplot("count");
 
+                
+            })
+            select.addEventListener('change', () => {
+                updateBoxplot(select.options[select.selectedIndex].value);
             })
     </script>
 

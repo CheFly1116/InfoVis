@@ -1,6 +1,6 @@
 class Barchart {
     margin = {
-        top: 50, right: 10, bottom: 40, left: 40
+        top: 50, right: 10, bottom: 40, left: 200
     }
 
     constructor(svg, width = 550, height = 550) {
@@ -35,9 +35,9 @@ class Barchart {
         else {
             new_data = data.filter(d => d["attack"] != 'normal');
         }
-        console.log(new_data);
+        // console.log(new_data);
         const categories = [...new Set(new_data.map(d => d["protocol_type"]))]
-        console.log(categories);
+        // console.log(categories);
         const counts = {}
 
         categories.forEach(c => {
@@ -51,10 +51,11 @@ class Barchart {
             .data(categories)
             .join("rect")
             .attr("x", d => this.xScale(d))
+            .transition()
             .attr("y", d => this.yScale(counts[d]))
             .attr("width", this.xScale.bandwidth())
             .attr("height", d => this.height - this.yScale(counts[d]))
-            // .attr("fill", "lightgray")
+            .transition()
             .attr("fill", d => this.zScale(d))
 
         this.xAxis
