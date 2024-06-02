@@ -9,7 +9,7 @@
         integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
 
     <script src="https://d3js.org/d3.v7.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/d3-legend/2.25.6/d3-legend.min.js"></script>
+    <script src="https://d3js.org/d3-scale-chromatic.v1.min.js"></script>
     <script src="https://unpkg.com/@popperjs/core@2"></script>
 
 
@@ -43,7 +43,7 @@
                         <a class="nav-link" href="/count.html">Attack Counts over Protocol Types</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="/binary.html">Binary Classification</a>
+                        <a class="nav-link" href="/outlier.html">Outliers</a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="/multi.html">Multi-class Classification</a>
@@ -57,14 +57,20 @@
     </header>
 
     <main class="container pb-3">
-
+        <div class="text-center">
+            <svg width="800" height="800" id="heatmap">
+            </svg>
+        </div>
     </main>
 
     <script>
-        let data, brushedData, scatterplot, histogram, pc, dataTable;
+        let data, brushedData, heatmap;
+        
+        function updateHeatmap(data) {
+            heatmap.update(data);
+        }
 
-
-        d3.csv("https://raw.githubusercontent.com/CheFly1116/InfoVis/main/dataset/KDDTrain%2B_20Percent.csv")
+        d3.csv("https://raw.githubusercontent.com/CheFly1116/InfoVis/main/dataset/correlation_matrix.csv")
             .then(csvData => {
                 csvData.forEach(d => {
                     d["duration"] = +d["duration"];
@@ -114,34 +120,10 @@
 
                 data = csvData;
 
-                scatterplot = new Scatterplot("#scatterplot", "#sc-tooltip", data);
-                scatterplot.initialize();
+                heatmap = new Heatmap("#heatmap");
+                heatmap.initialize();
 
-                updateScatterplot();
-                d3.selectAll("input[type=radio][name=x-encoding]").on("change", updateScatterplot);
-                d3.selectAll("input[type=radio][name=y-encoding]").on("change", updateScatterplot);
-                d3.selectAll("#use-color").on("change", updateScatterplot);
-
-                scatterplot.on("brush", (brushedItems) => {
-                    brushedData = brushedItems;
-                    updateHistogram();
-                    updatePC();
-                    updateDataTable();
-                });
-
-                histogram = new Histogram("#histogram");
-                histogram.initialize();
-
-                updateHistogram();
-
-                pc = new PC("#pc", data, ["petal.length", "petal.width", "sepal.length", "sepal.width"]);
-                pc.initialize();
-
-                updatePC();
-
-                dataTable = new DataTable("#data-table");
-
-                updateDataTable();
+                
             })
     </script>
 

@@ -1,6 +1,6 @@
 class Boxplot {
     margin = {
-        top: 50, right: 10, bottom: 40, left: 40
+        top: 50, right: 200, bottom: 40, left: 200
     }
 
     constructor(svg, width = 600, height = 600) {

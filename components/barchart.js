@@ -1,6 +1,6 @@
 class Barchart {
     margin = {
-        top: 50, right: 10, bottom: 40, left: 200
+        top: 50, right: 10, bottom: 40, left: 40
     }
 
     constructor(svg, width = 550, height = 550) {
