@@ -3,7 +3,7 @@ class Barchart {
         top: 50, right: 10, bottom: 40, left: 40
     }
 
-    constructor(svg, width = 400, height = 400) {
+    constructor(svg, width = 550, height = 550) {
         this.svg = svg;
         this.width = width;
         this.height = height;
@@ -18,7 +18,7 @@ class Barchart {
 
         this.xScale = d3.scaleBand();
         this.yScale = d3.scaleLinear();
-        this.zScale = d3.scaleOrdinal().range(d3.schemeCategory10);
+        this.zScale = d3.scaleOrdinal().domain(["tcp", "icmp", "udp"]).range(d3.schemeCategory10);
 
         this.svg
             .attr("width", this.width + this.margin.left + this.margin.right)
@@ -28,16 +28,24 @@ class Barchart {
 
     }
     update(data, xVar) {
-        const categories = [...new Set(data.map(d => d["protocol_type"]))]
+        var new_data = []
+        if (xVar === 'normal') {
+            new_data = data.filter(d => d["attack"] === 'normal');
+        }
+        else {
+            new_data = data.filter(d => d["attack"] != 'normal');
+        }
+        console.log(new_data);
+        const categories = [...new Set(new_data.map(d => d["protocol_type"]))]
+        console.log(categories);
         const counts = {}
 
         categories.forEach(c => {
-            counts[c] = data.filter(d => d["protocol_type"] === c).length;
+            counts[c] = new_data.filter(d => d["protocol_type"] === c).length;
         })
-
+        console.log(counts);
         this.xScale.domain(categories).range([0, this.width]).padding(0.3);
         this.yScale.domain([0, d3.max(Object.values(counts))]).range([this.height, 0]);
-        this.zScale.domain([...new Set(data.map(d => d["protocol_type"]))])
 
         this.container.selectAll("rect")
             .data(categories)
@@ -47,14 +55,16 @@ class Barchart {
             .attr("width", this.xScale.bandwidth())
             .attr("height", d => this.height - this.yScale(counts[d]))
             // .attr("fill", "lightgray")
-            .attr("fill", d => this.zScale(d['protocol_type']))
+            .attr("fill", d => this.zScale(d))
 
         this.xAxis
             .attr("transform", `translate(${this.margin.left}, ${this.margin.top + this.height})`)
+            .transition()
             .call(d3.axisBottom(this.xScale));
 
         this.yAxis
             .attr("transform", `translate(${this.margin.left}, ${this.margin.top})`)
+            .transition()
             .call(d3.axisLeft(this.yScale));
     }
 }

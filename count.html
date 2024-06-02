@@ -46,13 +46,13 @@
             <div class="container-fluid" id="navbarNavDropdown">
                 <ul class="navbar-nav">
                     <li class="nav-item active">
-                        <a class="nav-link" href="#">Attack Counts over Protocol Types</a>
+                        <a class="nav-link" href="/count.html">Attack Counts over Protocol Types</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="#">Binary Classification</a>
+                        <a class="nav-link" href="/binary.html">Binary Classification</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="#">Multi-class Classification</a>
+                        <a class="nav-link" href="multi.html">Multi-class Classification</a>
                     </li>
                 </ul>
             </div>
@@ -60,8 +60,10 @@
     </header>
 
     <main class="container pb-3">
-        <button class="btn btn-success" onclick="updateBarchart('normal')">Normal</button>
-        <button class="btn btn-danger" onclick="updateBarchart('attack')">Attack</button>
+        <div class="text-center">
+            <button class="btn btn-success" onclick="updateBarchart('normal')">Normal</button>
+            <button class="btn btn-danger" onclick="updateBarchart('attack')">Attack</button>
+        </div>
         <div class="text-center">
             <svg width="800" height="800" id="barchart">
             </svg>
@@ -71,8 +73,8 @@
     <script>
         let data, brushedData, barchart;
 
-        function updateBarchart() {
-            barchart.update(data, "attack");
+        function updateBarchart(xVar) {
+            barchart.update(data, xVar);
         }
 
         d3.csv("https://raw.githubusercontent.com/CheFly1116/InfoVis/main/dataset/KDDTrain%2B_20Percent.csv")
@@ -120,8 +122,7 @@
                 });
 
                 data = csvData;
-                console.log(data[0]);
-                console.log(data[1]);
+                // console.log(data[0]);
                 barchart = new Barchart("#barchart");
                 barchart.initialize();
 
