@@ -46,7 +46,7 @@
                         <a class="nav-link" href="/outlier.html">Outliers</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="/multi.html">Correlation Heatmap</a>
+                        <a class="nav-link" href="/multi.html">Correlation</a>
                     </li>
                 </ul>
             </div>
@@ -55,74 +55,103 @@
 
     <main class="container pb-3">
         <div class="text-center">
-            <svg width="800" height="800" id="heatmap">
+            <svg width="1000" height="1000" id="correlogram">
             </svg>
         </div>
     </main>
 
     <script>
-        let data, brushedData, heatmap;
-        
-        function updateHeatmap(data) {
-            heatmap.update(data);
+
+// Graph dimension
+const margin = {top: 20, right: 20, bottom: 100, left: 100},
+    width = 900 - margin.left - margin.right,
+    height = 900 - margin.top - margin.bottom
+
+// Create the svg area
+const svg = d3.select("#correlogram")
+  .append("svg")
+    .attr("width", width + margin.left + margin.right)
+    .attr("height", height + margin.top + margin.bottom)
+  .append("g")
+    .attr("transform", `translate(${margin.left},${margin.top})`);
+
+
+d3.csv("https://raw.githubusercontent.com/CheFly1116/InfoVis/main/dataset/correlation_matrix.csv").then(function(rows) {
+ // if (error) throw error
+  // Going from wide to long format
+  const data = [];
+  rows.forEach(function(d) {
+    let x = d[""];
+    delete d[""];
+    for (prop in d) {
+      let y = prop,
+        value = d[prop];
+      data.push({
+        x: x,
+        y: y,
+        value: +value
+      });
+    }
+  });
+
+  // List of all variables and number of them
+  const domain = Array.from(new Set(data.map(function(d) { return d.x })))
+  const num = Math.sqrt(data.length)
+
+  // Create a color scale
+  const color = d3.scaleLinear()
+    .domain([-1, 0, 1])
+    .range(["#B22222", "#fff", "#000080"]);
+
+  // Create a size scale for bubbles on top right. Watch out: must be a rootscale!
+  const size = d3.scaleSqrt()
+    .domain([0, 1])
+    .range([0, 9]);
+
+  // X scale
+  const x = d3.scalePoint()
+    .range([0, width])
+    .domain(domain)
+    svg.append("g")
+        .attr("transform", "translate(0," + height + ")")
+    .call(d3.axisBottom(x))
+    .selectAll("text")
+        .style("text-anchor", "end")
+        .attr("dx", "-.8em")
+        .attr("dy", ".15em")
+        .attr("transform", "rotate(-65)");
+
+  // Y scale
+  const y = d3.scalePoint()
+    .range([0, height])
+    .domain(domain)
+    svg.append("g")
+        .call(d3.axisLeft(y));
+
+  // Create one 'g' element for each cell of the correlogram
+  const cor = svg.selectAll(".cor")
+    .data(data)
+    .join("g")
+      .attr("class", "cor")
+      .attr("transform", function(d) {
+        return `translate(${x(d.x)}, ${y(d.y)})`
+      });
+
+
+  // Up right part: add circles
+  cor
+    .append("circle")
+      .attr("r", function(d){ return size(Math.abs(d.value)) })
+      .style("fill", function(d){
+        if (d.x === d.y) {
+          return "#000";
+        } else {
+          return color(d.value);
         }
-
-        d3.csv("https://raw.githubusercontent.com/CheFly1116/InfoVis/main/dataset/correlation_matrix.csv")
-            .then(csvData => {
-                csvData.forEach(d => {
-                    d["duration"] = +d["duration"];
-                    d["protocol_type"] = +d["protocol_type"];
-                    d["service"] = +d["service"];
-                    d["flag"] = +d["flag"];
-                    d["src_bytes"] = +d["src_bytes"];
-                    d["dst_bytes"] = +d["dst_bytes"];
-                    d["land"] = +d["land"];
-                    d["wrong_fragment"] = +d["wrong_fragment"];
-                    d["urgent"] = +d["urgent"];
-                    d["hot"] = +d["hot"];
-                    d["num_failed_logins"] = +d["num_failed_logins"];
-                    d["logged_in"] = +d["logged_in"];
-                    d["num_compromised"] = +d["num_compromised"];
-                    d["root_shell"] = +d["root_shell"];
-                    d["su_attempted"] = +d["su_attempted"];
-                    d["num_root"] = +d["num_root"];
-                    d["num_file_creations"] = +d["num_file_creations"];
-                    d["num_shells"] = +d["num_shells"];
-                    d["num_access_files"] = +d["num_access_files"];
-                    d["num_outbound_cmds"] = +d["num_outbound_cmds"];
-                    d["is_host_login"] = +d["is_host_login"];
-                    d["is_guest_login"] = +d["is_guest_login"];
-                    d["count"] = +d["count"];
-                    d["srv_count"] = +d["srv_count"];
-                    d["serror_rate"] = +d["serror_rate"];
-                    d["srv_serror_rate"] = +d["srv_serror_rate"];
-                    d["rerror_rate"] = +d["rerror_rate"];
-                    d["srv_rerror_rate"] = +d["srv_rerror_rate"];
-                    d["same_srv_rate"] = +d["same_srv_rate"];
-                    d["diff_srv_rate"] = +d["diff_srv_rate"];
-                    d["srv_diff_host_rate"] = +d["srv_diff_host_rate"];
-                    d["dst_host_count"] = +d["dst_host_count"];
-                    d["dst_host_srv_count"] = +d["dst_host_srv_count"];
-                    d["dst_host_same_srv_rate"] = +d["dst_host_same_srv_rate"];
-                    d["dst_host_diff_srv_rate"] = +d["dst_host_diff_srv_rate"];
-                    d["dst_host_same_src_port_rate"] = +d["dst_host_same_src_port_rate"];
-                    d["dst_host_srv_diff_host_rate"] = +d["dst_host_srv_diff_host_rate"];
-                    d["dst_host_serror_rate"] = +d["dst_host_serror_rate"];
-                    d["dst_host_srv_serror_rate"] = +d["dst_host_srv_serror_rate"];
-                    d["dst_host_rerror_rate"] = +d["dst_host_rerror_rate"];
-                    d["dst_host_srv_rerror_rate"] = +d["dst_host_srv_rerror_rate"];
-                    d["attack"] = +d["attack"];
-                    d["level"] = +d["level"];
-                });
-
-                data = csvData;
-
-                heatmap = new Heatmap("#heatmap");
-                heatmap.initialize();
-
-                
-            })
-    </script>
+      })
+      .style("opacity", 0.8)
+})
+</script>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
         integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
