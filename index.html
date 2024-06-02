@@ -12,10 +12,15 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/d3-legend/2.25.6/d3-legend.min.js"></script>
     <script src="https://unpkg.com/@popperjs/core@2"></script>
 
+
+    <script src="components/scatterplot.js"></script>
+    <script src="components/histogram.js"></script>
+    <script src="components/pc.js"></script>
     <script src="components/datatable.js"></script>
 
+
     <title>NSL-KDD Dataset Analyze</title>
-    <link rel="stylesheet" href="components/style.css" />
+    <link hrel="stylesheet" href="components/style.css"/>
     <style>
         body {
             background: #eee;
@@ -27,7 +32,7 @@
 <body>
     <header>
         <nav class="navbar navbar-expand-lg navbar-light bg-light" style="width: 1200px; margin: 0 auto">
-            <a class="navbar-brand" href="/index_final.html" style="margin-left: 40px;">NSL-KDD Analyze</a>
+            <a class="navbar-brand" href="/" style="margin-left: 40px;">NSL-KDD Analyze</a>
             <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavDropdown"
                 aria-controls="navbarNavDropdown" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
@@ -43,43 +48,26 @@
                     <li class="nav-item">
                         <a class="nav-link" href="/multi.html">Multi-class Classification</a>
                     </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="/describe.html">Dataset Description</a>
-                    </li>
                 </ul>
             </div>
         </nav>
     </header>
 
     <main class="container pb-3">
-        <table class="table table-striped text-center">
-            <thead>
-                <tr>
-                    <th>attribute</th>
-                    <th>count</th>
-                    <th>mean</th>
-                    <th>std</th>
-                    <th>min</th>
-                    <th>max</th>
-                </tr>
-            </thead>
-            <tbody id="data-table">
-
-            </tbody>
-        </table>
+        
     </main>
 
     <script>
-        let data, dataTable;
+        let data, brushedData, scatterplot, histogram, pc, dataTable;
 
-        function updateDataTable() {
-            dataTable.update(data, data.columns);
-        }
 
         d3.csv("https://raw.githubusercontent.com/CheFly1116/InfoVis/main/dataset/KDDTrain%2B_20Percent.csv")
             .then(csvData => {
                 csvData.forEach(d => {
                     d["duration"] = +d["duration"];
+                    d["protocol_type"] = +d["protocol_type"];
+                    d["service"] = +d["service"];
+                    d["flag"] = +d["flag"];
                     d["src_bytes"] = +d["src_bytes"];
                     d["dst_bytes"] = +d["dst_bytes"];
                     d["land"] = +d["land"];
@@ -117,15 +105,26 @@
                     d["dst_host_srv_serror_rate"] = +d["dst_host_srv_serror_rate"];
                     d["dst_host_rerror_rate"] = +d["dst_host_rerror_rate"];
                     d["dst_host_srv_rerror_rate"] = +d["dst_host_srv_rerror_rate"];
+                    d["attack"] = +d["attack"];
                     d["level"] = +d["level"];
                 });
 
                 data = csvData;
-                // console.log(data[0]);
-                dataTable = new DataTable("#data-table");
 
-                // updateDataTable();
+                scatterplot = new Scatterplot("#scatterplot", "#sc-tooltip", data);
+                scatterplot.initialize();
 
+                updateScatterplot();
+                d3.selectAll("input[type=radio][name=x-encoding]").on("change", updateScatterplot);
+                d3.selectAll("input[type=radio][name=y-encoding]").on("change", updateScatterplot);
+                d3.selectAll("#use-color").on("change", updateScatterplot);
+
+                scatterplot.on("brush", (brushedItems) => {
+                    brushedData = brushedItems;
+                    updateHistogram();
+                    updatePC();
+                    updateDataTable();
+                });
             })
     </script>
 
